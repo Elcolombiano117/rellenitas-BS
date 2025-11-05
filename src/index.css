@@ -1,0 +1,210 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Rellenitas Brand Colors - Cálidos y artesanales */
+    --background: 40 35% 96%; /* Crema suave #FAF6F0 */
+    --foreground: 25 40% 20%; /* Chocolate profundo #4A3428 */
+
+    --card: 0 0% 100%; /* Blanco para cards */
+    --card-foreground: 25 40% 20%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 25 40% 20%;
+
+    --primary: 43 90% 58%; /* Mantequilla dorada #ECC94B */
+    --primary-foreground: 25 40% 15%;
+
+    --secondary: 30 45% 60%; /* Caramelo suave #C89B64 */
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 38 28% 90%;
+    --muted-foreground: 17 35% 35%;
+
+    --accent: 45 85% 52%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 38 28% 85%;
+    --input: 38 28% 85%;
+    --ring: 45 85% 52%;
+
+    --radius: 0.75rem;
+    
+    /* Custom brand tokens - Paleta artesanal */
+    --warm-beige: 40 35% 96%;
+    --cream: 40 35% 92%;
+    --chocolate: 25 40% 20%;
+    --chocolate-light: 25 40% 45%;
+    --gold: 43 90% 58%;
+    --caramel: 30 45% 60%;
+    --butter: 43 90% 68%;
+    --purple-filling: 326 34% 44%;
+    --morado: 326 34% 44%;
+    --morado-light: 326 34% 60%;
+    --primary-glow: 43 90% 70%;
+    --white: 0 0% 100%;
+    
+    /* Gradients - Cálidos y deliciosos */
+    --gradient-hero: linear-gradient(135deg, hsla(43, 90%, 58%, 0.7) 0%, hsla(30, 45%, 60%, 0.7) 50%, hsla(326, 34%, 44%, 0.6) 100%);
+    --gradient-warm: linear-gradient(180deg, hsl(40, 35%, 98%) 0%, hsl(40, 35%, 96%) 100%);
+    --gradient-golden: linear-gradient(135deg, hsl(43, 90%, 68%) 0%, hsl(43, 90%, 58%) 100%);
+    --gradient-overlay: linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.1) 50%, rgba(0, 0, 0, 0.4) 100%);
+    
+    /* Shadows - Suaves y artesanales */
+    --shadow-warm: 0 8px 30px hsla(43, 90%, 58%, 0.25);
+    --shadow-card: 0 4px 12px hsla(25, 40%, 20%, 0.1);
+    --shadow-glow: 0 0 40px hsla(43, 90%, 58%, 0.4);
+    --shadow-soft: 0 2px 20px hsla(30, 45%, 60%, 0.15);
+    
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* Dark mode - warmer tones for artisanal feel */
+    --background: 17 35% 15%;
+    --foreground: 38 28% 95%;
+
+    --card: 17 35% 20%;
+    --card-foreground: 38 28% 95%;
+
+    --popover: 17 35% 20%;
+    --popover-foreground: 38 28% 95%;
+
+    --primary: 45 85% 52%;
+    --primary-foreground: 17 35% 15%;
+
+    --secondary: 326 34% 44%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 17 35% 25%;
+    --muted-foreground: 38 28% 70%;
+
+    --accent: 45 85% 52%;
+    --accent-foreground: 17 35% 15%;
+
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 17 35% 30%;
+    --input: 17 35% 30%;
+    --ring: 45 85% 52%;
+    
+    /* Sidebar */
+    --sidebar-background: 17 35% 15%;
+    --sidebar-foreground: 38 28% 95%;
+    --sidebar-primary: 45 85% 52%;
+    --sidebar-primary-foreground: 17 35% 15%;
+    --sidebar-accent: 17 35% 20%;
+    --sidebar-accent-foreground: 38 28% 95%;
+    --sidebar-border: 17 35% 30%;
+    --sidebar-ring: 45 85% 52%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-lato;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-poppins font-semibold;
+  }
+}
+
+@layer components {
+  .hero-overlay {
+    background: var(--gradient-overlay);
+    backdrop-filter: blur(2px);
+  }
+  
+  .hero-overlay-warm {
+    background: var(--gradient-hero);
+    backdrop-filter: blur(4px);
+  }
+  
+  .card-hover {
+    transition: var(--transition-smooth);
+    box-shadow: var(--shadow-card);
+  }
+  
+  .card-hover:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: var(--shadow-warm);
+  }
+  
+  .btn-whatsapp {
+    background: linear-gradient(135deg, #25D366, #20B858);
+    color: white;
+    transition: var(--transition-smooth);
+  }
+  
+  .btn-whatsapp:hover {
+    transform: scale(1.1);
+    box-shadow: 0 10px 35px rgba(37, 211, 102, 0.4);
+  }
+  
+  .btn-primary-glow {
+    background: var(--gradient-golden);
+    box-shadow: var(--shadow-warm);
+    transition: var(--transition-smooth);
+  }
+  
+  .btn-primary-glow:hover {
+    box-shadow: var(--shadow-glow);
+    transform: translateY(-2px) scale(1.05);
+  }
+  
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .crumb {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: hsl(var(--gold));
+    border-radius: 50%;
+    opacity: 0.6;
+    box-shadow: 0 0 10px hsl(var(--gold));
+  }
+  
+  .text-shadow-soft {
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3), 0 4px 20px rgba(0, 0, 0, 0.2);
+  }
+  
+  .text-shadow-glow {
+    text-shadow: 0 0 20px hsla(var(--gold), 0.5), 0 0 40px hsla(var(--gold), 0.3);
+  }
+}
