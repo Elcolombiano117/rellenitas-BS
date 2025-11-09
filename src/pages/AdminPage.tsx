@@ -37,6 +37,10 @@ const AdminPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      {/* DEBUG: estado de permisos (temporal) */}
+      <div className="container mx-auto px-4 py-2">
+        <div className="text-sm text-muted-foreground">DEBUG: isAdmin = {String(isAdmin)}, loading = {String(loading)}</div>
+      </div>
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-poppins font-bold text-foreground mb-8">
           Sistema QSR - Las Rellenitas
