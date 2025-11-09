@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -54,10 +55,47 @@ const statusConfig = {
 };
 
 export const KitchenDisplay = () => {
+  const { user, loading: authLoading } = useAuth();
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const { toast } = useToast();
+  const [checkingPermission, setCheckingPermission] = useState(true);
 
+  // Verify the user has the `admin` or `kitchen` role before loading orders
   useEffect(() => {
+    const checkRole = async () => {
+      if (authLoading) return;
+      if (!user) {
+        setHasPermission(false);
+        setCheckingPermission(false);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id);
+
+        if (error) throw error;
+
+        const roles = (data || []).map((r: any) => r.role);
+        setHasPermission(roles.includes('admin') || roles.includes('kitchen'));
+        setCheckingPermission(false);
+      } catch (err) {
+        console.error('Error checking kitchen role:', err);
+        setHasPermission(false);
+        setCheckingPermission(false);
+      }
+    };
+
+    checkRole();
+  }, [user, authLoading]);
+
+  // Only fetch orders and subscribe to realtime when permission is granted
+  useEffect(() => {
+    if (!hasPermission) return;
+
     fetchOrders();
 
     // Real-time updates
@@ -81,7 +119,7 @@ export const KitchenDisplay = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [hasPermission]);
 
   const fetchOrders = async () => {
     try {
@@ -170,6 +208,32 @@ export const KitchenDisplay = () => {
       minute: '2-digit',
     });
   };
+
+  if (checkingPermission) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Verificando permisos...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (hasPermission === false) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <Card className="p-8 text-center max-w-lg">
+          <h2 className="text-2xl font-poppins font-bold mb-4">Acceso denegado</h2>
+          <p className="text-muted-foreground mb-6">No tienes permiso para ver la pantalla de cocina. Por favor inicia sesión con una cuenta con permisos de cocina o admin.</p>
+          <div className="flex justify-center gap-4">
+            <Button onClick={() => window.location.href = '/auth'}>Iniciar sesión</Button>
+            <Button variant="outline" onClick={() => window.location.href = '/'}>Volver al inicio</Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background p-4">

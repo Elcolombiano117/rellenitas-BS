@@ -15,66 +15,44 @@ const statusConfig = {
   cancelled: { label: "Cancelado", color: "bg-red-500", step: 0, icon: Clock, description: "Este pedido ha sido cancelado" },
 };
 
-const TrackingPage = () => {
-  const { orderId } = useParams();
+const PublicTrackingPage = () => {
+  const { token } = useParams();
   const [order, setOrder] = useState<any>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (orderId) {
+    if (token) {
       fetchOrder();
-      
-      // Real-time updates
-      const channel = supabase
-        .channel(`order-${orderId}`)
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'orders',
-            filter: `id=eq.${orderId}`
-          },
-          () => {
-            fetchOrder();
-          }
-        )
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(channel);
-      };
     }
-  }, [orderId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
   const fetchOrder = async () => {
     try {
-      // Fetch order details
       const { data: orderData, error: orderError } = await supabase
         .from("orders")
         .select(`
           *,
           order_items (*)
         `)
-        .eq("id", orderId)
+        .eq("public_tracking_token", token)
         .single();
 
       if (orderError) throw orderError;
       setOrder(orderData);
 
-      // Fetch status history
       const { data: historyData, error: historyError } = await supabase
         .from("order_status_history")
         .select("*")
-        .eq("order_id", orderId)
+        .eq("order_id", orderData?.id)
         .order("created_at", { ascending: false });
 
       if (historyError) throw historyError;
       setHistory(historyData || []);
-
     } catch (error) {
       console.error("Error fetching order:", error);
+      setOrder(null);
     } finally {
       setLoading(false);
     }
@@ -108,8 +86,6 @@ const TrackingPage = () => {
     );
   }
 
-  
-
   if (!order) {
     return (
       <div className="min-h-screen bg-background">
@@ -134,7 +110,6 @@ const TrackingPage = () => {
         <h1 className="text-3xl font-poppins font-bold mb-2">Seguimiento de Pedido</h1>
         <p className="text-muted-foreground mb-8">Pedido #{order.order_number}</p>
 
-        {/* Status Card */}
         <Card className="mb-8 border-2">
           <CardContent className="p-6">
             <div className="flex items-center gap-4 mb-4">
@@ -159,7 +134,6 @@ const TrackingPage = () => {
           </CardContent>
         </Card>
 
-        {/* Progress Steps */}
         {order.order_status !== "cancelled" && (
           <Card className="mb-8">
             <CardContent className="p-8">
@@ -183,8 +157,7 @@ const TrackingPage = () => {
                           currentStep >= step 
                             ? "bg-primary text-white scale-110 shadow-lg" 
                             : "bg-muted text-muted-foreground"
-                        }`}
-                      >
+                        }`}>
                         <Icon className="w-7 h-7" />
                       </div>
                       <p className={`text-sm text-center font-medium max-w-[80px] ${
@@ -201,7 +174,6 @@ const TrackingPage = () => {
         )}
 
         <div className="grid md:grid-cols-2 gap-6 mb-8">
-          {/* Customer Info */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Información del Cliente</CardTitle>
@@ -239,7 +211,6 @@ const TrackingPage = () => {
             </CardContent>
           </Card>
 
-          {/* Order Items */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Detalle del Pedido</CardTitle>
@@ -276,7 +247,6 @@ const TrackingPage = () => {
           </Card>
         </div>
 
-        {/* Order History */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Historial del Pedido</CardTitle>
@@ -312,4 +282,4 @@ const TrackingPage = () => {
   );
 };
 
-export default TrackingPage;
+export default PublicTrackingPage;

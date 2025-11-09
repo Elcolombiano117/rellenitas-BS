@@ -37,6 +37,19 @@ const ShoppingCart = ({ open, onOpenChange }: ShoppingCartProps) => {
       message += `• ${item.name} x${item.quantity} → ${formatPrice(itemTotal)}\n`;
     });
     
+  message += `\n💰 *Total:* ${formatPrice(getTotalPrice())}\n\n`;
+  message += "📍 *Datos de entrega:*\n";
+    message += `Nombre: ${formData.fullName}\n`;
+    if (formData.email) message += `Email: ${formData.email}\n`;
+    message += `Dirección: ${formData.address}\n`;
+    message += `Ciudad: ${formData.city}, ${formData.department}\n`;
+    message += `Teléfono: ${formData.phone}\n`;
+    message += `💳 Método de pago: ${
+      formData.paymentMethod === 'efectivo' ? 'Efectivo' : 
+      formData.paymentMethod === 'transferencia' ? 'Transferencia' : 
+      'Pago en línea'
+    }\n\n`;
+     console.log("WhatsApp message:", message);
     message += `\n💰 *Total:* ${formatPrice(getTotalPrice())}\n\n`;
     message += "📍 *Datos de entrega:*\n";
     message += `Nombre: ${formData.fullName}\n`;
@@ -51,8 +64,6 @@ const ShoppingCart = ({ open, onOpenChange }: ShoppingCartProps) => {
     }\n\n`;
     message += `🔗 Seguir mi pedido: ${window.location.origin}/tracking/${formData.orderId}`;
 
-     console.log("WhatsApp message:", message);
-   
     const encodedMessage = encodeURIComponent(message);
      const whatsappUrl = `https://wa.me/573142621490?text=${encodedMessage}`;
    
