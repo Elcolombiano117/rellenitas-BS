@@ -15,3 +15,6 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     autoRefreshToken: true,
   }
 });
+
+// Runtime convenience: untyped alias to avoid repeating casts in many files.
+export const supabaseAny = supabase as any;
