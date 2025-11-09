@@ -72,7 +72,8 @@ export const KitchenDisplay = () => {
       }
 
       try {
-        const { data, error } = await supabase
+        // Cast supabase to any for table name typing flexibility
+        const { data, error } = await (supabase as any)
           .from('user_roles')
           .select('role')
           .eq('user_id', user.id);
@@ -123,7 +124,7 @@ export const KitchenDisplay = () => {
 
   const fetchOrders = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("orders")
         .select(`
           *,

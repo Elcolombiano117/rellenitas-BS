@@ -28,12 +28,19 @@ export const useAdmin = () => {
         // 1) Try RPC has_role (preferred: SECURITY DEFINER function)
         let rpcOk = false;
         try {
-          const rpcRes = await supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' });
+          // Cast supabase to any to avoid strict generated types for RPC/functions/table names
+          const rpcRes = await (supabase as any).rpc('has_role', { _user_id: user.id, _role: 'admin' });
           console.log('useAdmin: has_role rpc response', rpcRes);
-          // rpcRes.data may be boolean or { has_role: true } depending on PG function signature
-          const rpcData = rpcRes.data;
-          if (rpcRes.error) throw rpcRes.error;
-          if (rpcData === true || (Array.isArray(rpcData) && rpcData[0] === true) || (rpcData && rpcData.count !== undefined && rpcData.count > 0) || (rpcData && rpcData[0] && (rpcData[0] === true || rpcData[0].has_role === true))) {
+          const rpcData = rpcRes?.data;
+          if (rpcRes?.error) throw rpcRes.error;
+
+          // Interpret multiple possible return shapes
+          if (
+            rpcData === true ||
+            (Array.isArray(rpcData) && rpcData[0] === true) ||
+            (rpcData && typeof rpcData === 'object' && (rpcData.count > 0 || rpcData.has_role === true)) ||
+            (Array.isArray(rpcData) && rpcData[0] && (rpcData[0] === true || rpcData[0].has_role === true))
+          ) {
             setIsAdmin(true);
             rpcOk = true;
             hasChecked.current = true;
@@ -46,7 +53,8 @@ export const useAdmin = () => {
         if (!rpcOk) {
           let attempts = 0;
           while (attempts < 3) {
-            const { data, error } = await supabase
+            // Cast supabase to any to avoid 'never' table-name typing errors from generated Database types
+            const { data, error } = await (supabase as any)
               .from('user_roles')
               .select('role')
               .eq('user_id', user.id)

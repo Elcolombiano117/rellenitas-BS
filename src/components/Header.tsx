@@ -28,6 +28,17 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Debug: log admin/user state on mount/update to help trace missing console logs
+  useEffect(() => {
+    try {
+      console.log('Header: mount/update', { isAdmin, userId: user?.id, userEmail: user?.email, path: window.location.pathname });
+    } catch (err) {
+      // Defensive: avoid breaking render if window is undefined in some SSR or test environments
+      // eslint-disable-next-line no-console
+      console.warn('Header: debug log failed', err);
+    }
+  }, [isAdmin, user?.id, user?.email]);
+
   const navigation = [
     { name: "Inicio", href: "#inicio" },
     { name: "Productos", href: "#productos" },
