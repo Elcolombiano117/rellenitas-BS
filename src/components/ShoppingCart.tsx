@@ -39,7 +39,7 @@ const ShoppingCart = ({ open, onOpenChange }: ShoppingCartProps) => {
       message += `• ${item.name} x${item.quantity} → ${formatPrice(itemTotal)}\n`;
     });
     
-  message += `\n💰 *Total:* ${formatPrice(getTotalPrice())}\n\n`;
+    message += `\n💰 *Total:* ${formatPrice(getTotalPrice())}\n\n`;
     message += "📍 *Datos de entrega:*\n";
     message += `Nombre: ${formData.fullName}\n`;
     if (formData.email) message += `Email: ${formData.email}\n`;
@@ -51,14 +51,19 @@ const ShoppingCart = ({ open, onOpenChange }: ShoppingCartProps) => {
       formData.paymentMethod === 'transferencia' ? 'Transferencia' : 
       'Pago en línea'
     }\n\n`;
-    message += `🔗 Seguir mi pedido: ${window.location.origin}/tracking/${formData.orderId}`;
-
-     console.log("WhatsApp message:", message);
-   
-    // If the user is not logged in, append a note explaining that tracking requires login
+    // Only include an external tracking link for anonymous users. If the user is logged in,
+    // we intentionally DO NOT include a direct tracking link so authenticated users cannot
+    // view the public tracking page for this order.
     if (!user) {
+      message += `🔗 Seguir mi pedido: ${window.location.origin}/tracking/${formData.orderId}`;
       message += `\n\nNota: Para ver el seguimiento de este pedido debes iniciar sesión en: ${window.location.origin}/auth`;
+    } else {
+      // For logged-in users we explicitly omit the tracking link.
+      message += `
+Nota: El seguimiento público del pedido no está disponible para usuarios autenticados.`;
     }
+
+    console.log("WhatsApp message:", message);
 
     const encodedMessage = encodeURIComponent(message);
      const whatsappUrl = `https://wa.me/573142621490?text=${encodedMessage}`;
