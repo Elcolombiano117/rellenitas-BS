@@ -88,7 +88,23 @@ const Header = () => {
                     <Button
                       variant="default"
                       size="sm"
-                      onClick={() => navigate('/admin')}
+                      onClick={() => {
+                        console.log('Header: Admin button clicked - navigate start');
+                        try {
+                          navigate('/admin');
+                        } catch (err) {
+                          console.warn('Header: navigate threw', err);
+                        }
+
+                        // After a short delay, if the SPA navigation didn't change the path,
+                        // fallback to a full-page navigation to ensure the admin page loads.
+                        setTimeout(() => {
+                          if (window.location.pathname !== '/admin') {
+                            console.log('Header: SPA navigation did not change path, forcing full reload to /admin');
+                            window.location.href = '/admin';
+                          }
+                        }, 300);
+                      }}
                       className="gap-2"
                     >
                       <ShieldCheck className="h-4 w-4" />
