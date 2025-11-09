@@ -75,15 +75,29 @@ const CheckoutForm = ({ items, totalPrice, onBack, onConfirm }: CheckoutFormProp
     try {
       // Generate order number
       const orderNumber = `REL-${Date.now().toString().slice(-8)}`;
-      
+
+      // Generate a client-side UUID for the order so we don't need to SELECT the row
+      // (SELECT may be blocked for anonymous users by RLS). This allows creating
+      // order_items and history using the known id even if SELECT is denied.
+      const orderId = (typeof crypto !== 'undefined' && (crypto as any).randomUUID)
+        ? (crypto as any).randomUUID()
+        : // fallback simple UUID generator
+          'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            const r = (Math.random() * 16) | 0;
+            const v = c === 'x' ? r : (r & 0x3) | 0x8;
+            return v.toString(16);
+          });
+
       const finalTotal = totalPrice - couponDiscount;
-      
-       console.log("Creating order with data:", { orderNumber, finalTotal, items });
-     
-      // Create order in database
-      const { data: order, error: orderError } = await supabase
+
+      console.log("Creating order with data:", { orderId, orderNumber, finalTotal, items });
+
+      // Create order in database using the client-generated id. We avoid calling
+      // .select() afterwards because anonymous SELECT may be blocked by RLS.
+      const { error: orderError } = await supabase
         .from("orders")
         .insert({
+          id: orderId,
           order_number: orderNumber,
           user_id: user?.id || null,
           customer_name: data.fullName,
@@ -99,17 +113,15 @@ const CheckoutForm = ({ items, totalPrice, onBack, onConfirm }: CheckoutFormProp
           discount_amount: couponDiscount,
           total_amount: finalTotal,
           coupon_code: null,
-        })
-        .select()
-        .single();
+        });
 
       if (orderError) throw orderError;
-     
-       console.log("Order created successfully:", order);
+
+      console.log("Order created successfully (id):", orderId);
 
       // Create order items
       const orderItems = items.map(item => ({
-        order_id: order.id,
+        order_id: orderId,
         product_name: item.name,
         product_price: item.price,
         quantity: item.quantity,
@@ -124,7 +136,7 @@ const CheckoutForm = ({ items, totalPrice, onBack, onConfirm }: CheckoutFormProp
 
       // Create initial status history
       await supabase.from("order_status_history").insert({
-        order_id: order.id,
+        order_id: orderId,
         status: "pending",
         notes: "Pedido creado",
       });
@@ -134,10 +146,10 @@ const CheckoutForm = ({ items, totalPrice, onBack, onConfirm }: CheckoutFormProp
         description: `Número de pedido: ${orderNumber}`,
       });
 
-       console.log("Calling onConfirm with:", { ...data, orderNumber, orderId: order.id });
-     
-      // Pass order data to WhatsApp confirmation
-      onConfirm({ ...data, orderNumber, orderId: order.id });
+      console.log("Calling onConfirm with:", { ...data, orderNumber, orderId });
+
+      // Pass order data to WhatsApp confirmation using the known orderId
+      onConfirm({ ...data, orderNumber, orderId });
       
     } catch (error) {
       console.error("Error creating order:", error);

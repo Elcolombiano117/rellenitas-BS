@@ -1,5 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { useAdmin } from "@/hooks/useAdmin";
 import Header from "@/components/Header";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,13 +22,22 @@ const TrackingPage = () => {
   const [order, setOrder] = useState<any>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [unauthorized, setUnauthorized] = useState(false);
+  const { user } = useAuth();
+  const { isAdmin } = useAdmin();
 
   useEffect(() => {
-    if (orderId) {
-      fetchOrder();
-      
-      // Real-time updates
-      const channel = supabase
+    let channel: any = null;
+
+    const setup = async () => {
+      if (!orderId) return;
+
+      await fetchOrder();
+
+      // Only subscribe to realtime if the user is authorized to view the order
+      if (unauthorized) return;
+
+      channel = supabase
         .channel(`order-${orderId}`)
         .on(
           'postgres_changes',
@@ -41,12 +52,16 @@ const TrackingPage = () => {
           }
         )
         .subscribe();
+    };
 
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    }
-  }, [orderId]);
+    setup();
+
+    return () => {
+      if (channel) supabase.removeChannel(channel);
+    };
+    // we intentionally include `unauthorized` and `isAdmin` so that subscription won't start
+    // before we validate ownership
+  }, [orderId, unauthorized, isAdmin]);
 
   const fetchOrder = async () => {
     try {
@@ -61,7 +76,20 @@ const TrackingPage = () => {
         .single();
 
       if (orderError) throw orderError;
-      setOrder(orderData);
+      // If the order exists, enforce that only the owner (or admin) can view it
+      if (orderData) {
+        const ownerId = orderData.user_id;
+        // If there's a logged user and they are owner or admin, allow; otherwise mark unauthorized
+        if (user && (user.id === ownerId || isAdmin)) {
+          setOrder(orderData);
+          setUnauthorized(false);
+        } else {
+          setOrder(null);
+          setUnauthorized(true);
+        }
+      } else {
+        setOrder(null);
+      }
 
       // Fetch status history
       const { data: historyData, error: historyError } = await supabase
@@ -108,7 +136,20 @@ const TrackingPage = () => {
     );
   }
 
-  
+  if (unauthorized) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="container mx-auto px-4 py-8">
+          <Card>
+            <CardContent className="p-8 text-center">
+              <p className="text-lg text-muted-foreground">No tienes permiso para ver este pedido.</p>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    );
+  }
 
   if (!order) {
     return (
