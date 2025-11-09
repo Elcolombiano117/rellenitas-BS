@@ -94,7 +94,8 @@ const CheckoutForm = ({ items, totalPrice, onBack, onConfirm }: CheckoutFormProp
 
       // Create order in database using the client-generated id. We avoid calling
       // .select() afterwards because anonymous SELECT may be blocked by RLS.
-      const { error: orderError } = await supabase
+      // Cast supabase to any to avoid TypeScript errors if generated types don't include these tables
+      const { error: orderError } = await (supabase as any)
         .from("orders")
         .insert({
           id: orderId,
@@ -128,14 +129,14 @@ const CheckoutForm = ({ items, totalPrice, onBack, onConfirm }: CheckoutFormProp
         subtotal: item.price * item.quantity,
       }));
 
-      const { error: itemsError } = await supabase
+      const { error: itemsError } = await (supabase as any)
         .from("order_items")
         .insert(orderItems);
 
       if (itemsError) throw itemsError;
 
       // Create initial status history
-      await supabase.from("order_status_history").insert({
+      await (supabase as any).from("order_status_history").insert({
         order_id: orderId,
         status: "pending",
         notes: "Pedido creado",
