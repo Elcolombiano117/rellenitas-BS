@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, supabaseAny } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
 export const useAdmin = () => {
@@ -29,7 +29,7 @@ export const useAdmin = () => {
         let rpcOk = false;
         try {
           // Cast supabase to any to avoid strict generated types for RPC/functions/table names
-          const rpcRes = await (supabase as any).rpc('has_role', { _user_id: user.id, _role: 'admin' });
+          const rpcRes = await supabaseAny.rpc('has_role', { _user_id: user.id, _role: 'admin' });
           console.log('useAdmin: has_role rpc response', rpcRes);
           const rpcData = rpcRes?.data;
           if (rpcRes?.error) throw rpcRes.error;
@@ -54,7 +54,7 @@ export const useAdmin = () => {
           let attempts = 0;
           while (attempts < 3) {
             // Cast supabase to any to avoid 'never' table-name typing errors from generated Database types
-            const { data, error } = await (supabase as any)
+            const { data, error } = await supabaseAny
               .from('user_roles')
               .select('role')
               .eq('user_id', user.id)

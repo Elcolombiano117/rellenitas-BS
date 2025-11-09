@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, supabaseAny } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -73,7 +73,7 @@ export const KitchenDisplay = () => {
 
       try {
         // Cast supabase to any for table name typing flexibility
-        const { data, error } = await (supabase as any)
+        const { data, error } = await supabaseAny
           .from('user_roles')
           .select('role')
           .eq('user_id', user.id);
@@ -124,7 +124,7 @@ export const KitchenDisplay = () => {
 
   const fetchOrders = async () => {
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabaseAny
         .from("orders")
         .select(`
           *,

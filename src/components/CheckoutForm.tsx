@@ -8,7 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { CartItem } from "@/hooks/useCart";
 import { ArrowLeft, CheckCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, supabaseAny } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -95,7 +95,7 @@ const CheckoutForm = ({ items, totalPrice, onBack, onConfirm }: CheckoutFormProp
       // Create order in database using the client-generated id. We avoid calling
       // .select() afterwards because anonymous SELECT may be blocked by RLS.
       // Cast supabase to any to avoid TypeScript errors if generated types don't include these tables
-      const { error: orderError } = await (supabase as any)
+      const { error: orderError } = await supabaseAny
         .from("orders")
         .insert({
           id: orderId,
@@ -129,14 +129,14 @@ const CheckoutForm = ({ items, totalPrice, onBack, onConfirm }: CheckoutFormProp
         subtotal: item.price * item.quantity,
       }));
 
-      const { error: itemsError } = await (supabase as any)
+      const { error: itemsError } = await supabaseAny
         .from("order_items")
         .insert(orderItems);
 
       if (itemsError) throw itemsError;
 
       // Create initial status history
-      await (supabase as any).from("order_status_history").insert({
+      await supabaseAny.from("order_status_history").insert({
         order_id: orderId,
         status: "pending",
         notes: "Pedido creado",
