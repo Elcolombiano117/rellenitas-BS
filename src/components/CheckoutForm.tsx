@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { CartItem } from "@/hooks/useCart";
-import { ArrowLeft, CheckCircle, Tag } from "lucide-react";
+import { ArrowLeft, CheckCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
@@ -38,7 +38,6 @@ const CheckoutForm = ({ items, totalPrice, onBack, onConfirm }: CheckoutFormProp
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [couponDiscount, setCouponDiscount] = useState(0);
-  const [appliedCoupon, setAppliedCoupon] = useState("");
   
   const {
     register,
@@ -46,7 +45,7 @@ const CheckoutForm = ({ items, totalPrice, onBack, onConfirm }: CheckoutFormProp
     formState: { errors },
     setValue,
     watch,
-    getValues,
+    
   } = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
@@ -68,49 +67,7 @@ const CheckoutForm = ({ items, totalPrice, onBack, onConfirm }: CheckoutFormProp
     }).format(price);
   };
 
-  const handleApplyCoupon = async () => {
-    const code = getValues("couponCode");
-    if (!code) return;
-
-    const { data: coupon, error } = await supabase
-      .from("coupons")
-      .select("*")
-      .eq("code", code.toUpperCase())
-      .eq("is_active", true)
-      .single();
-
-    if (error || !coupon) {
-      toast({
-        title: "Cupón inválido",
-        description: "El cupón ingresado no es válido o ha expirado.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (coupon.min_purchase_amount && totalPrice < coupon.min_purchase_amount) {
-      toast({
-        title: "Monto mínimo no alcanzado",
-        description: `El cupón requiere una compra mínima de ${formatPrice(coupon.min_purchase_amount)}`,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    let discount = 0;
-    if (coupon.discount_type === "percentage") {
-      discount = (totalPrice * coupon.discount_value) / 100;
-    } else {
-      discount = coupon.discount_value;
-    }
-
-    setCouponDiscount(discount);
-    setAppliedCoupon(code.toUpperCase());
-    toast({
-      title: "¡Cupón aplicado!",
-      description: `Descuento de ${formatPrice(discount)} aplicado exitosamente.`,
-    });
-  };
+  
 
   const onSubmit = async (data: CheckoutFormData) => {
     setIsSubmitting(true);
@@ -141,7 +98,7 @@ const CheckoutForm = ({ items, totalPrice, onBack, onConfirm }: CheckoutFormProp
           subtotal: totalPrice,
           discount_amount: couponDiscount,
           total_amount: finalTotal,
-          coupon_code: appliedCoupon || null,
+          coupon_code: null,
         })
         .select()
         .single();
@@ -236,7 +193,7 @@ const CheckoutForm = ({ items, totalPrice, onBack, onConfirm }: CheckoutFormProp
             
             {couponDiscount > 0 && (
               <div className="flex justify-between text-sm text-green-600">
-                <span>Descuento ({appliedCoupon}):</span>
+                <span>Descuento:</span>
                 <span className="font-semibold">-{formatPrice(couponDiscount)}</span>
               </div>
             )}
@@ -347,29 +304,7 @@ const CheckoutForm = ({ items, totalPrice, onBack, onConfirm }: CheckoutFormProp
           </div>
 
           <div>
-            <Label htmlFor="couponCode" className="text-foreground flex items-center gap-2">
-              <Tag className="w-4 h-4" />
-              Cupón de descuento (opcional)
-            </Label>
-            <div className="flex gap-2 mt-1.5">
-              <Input
-                id="couponCode"
-                {...register("couponCode")}
-                className="uppercase"
-                placeholder="BIENVENIDA"
-              />
-              <Button
-                type="button"
-                onClick={handleApplyCoupon}
-                variant="outline"
-                className="whitespace-nowrap"
-              >
-                Aplicar
-              </Button>
-            </div>
-            {appliedCoupon && (
-              <p className="text-sm text-green-600 mt-1">✓ Cupón {appliedCoupon} aplicado</p>
-            )}
+            {/* Bloque de cupón removido del menú de confirmación */}
           </div>
 
           <div>
