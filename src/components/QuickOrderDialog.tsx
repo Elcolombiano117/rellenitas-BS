@@ -8,9 +8,9 @@ import {
 } from "@/components/ui/dialog";
 import { Plus, Minus, ShoppingCart } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
-import rellenitaOreo from "@/assets/rellenita-oreo.jpg";
-import rellenitaMM from "@/assets/rellenita-mm.jpg";
-import rellenitaSorpresa from "@/assets/rellenita-sorpresa.jpg";
+import rellenitaOreo from "@/assets/rellenita-oreo.png";
+import rellenitaMM from "@/assets/rellenita-mm.png";
+import rellenitaSorpresa from "@/assets/rellenita-sorpresa.png";
 
 interface QuickOrderDialogProps {
   open: boolean;
@@ -25,21 +25,21 @@ const QuickOrderDialog = ({ open, onOpenChange, onOpenCart }: QuickOrderDialogPr
     {
       id: "rellenita-oreo",
       name: "Rellenita Oreo",
-      price: 3500,
+      price: 3800,
       image: rellenitaOreo,
       description: "Galleta artesanal con relleno cremoso de Oreo"
     },
     {
       id: "rellenita-mm",
       name: "Rellenita M&M's",
-      price: 4200,
+      price: 3800,
       image: rellenitaMM,
       description: "Explosión de colores y sabores con M&M's"
     },
     {
       id: "rellenita-sorpresa",
       name: "Rellenita Sorpresa",
-      price: 4000,
+      price: 3800,
       image: rellenitaSorpresa,
       description: "Sorpresa dulce con mermelada de frutos rojos"
     }
