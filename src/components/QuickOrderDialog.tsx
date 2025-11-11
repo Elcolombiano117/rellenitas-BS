@@ -8,9 +8,9 @@ import {
 } from "@/components/ui/dialog";
 import { Plus, Minus, ShoppingCart } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
-import rellenitaOreo from "@/assets/rellenita-oreo.png";
-import rellenitaMM from "@/assets/rellenita-mm.png";
-import rellenitaSorpresa from "@/assets/rellenita-sorpresa.png";
+import rellenitaOreo from "@/assets/rellenita-oreo.jpg";
+import rellenitaMM from "@/assets/rellenita-mm.jpg";
+import rellenitaSorpresa from "@/assets/rellenita-sorpresa.jpg";
 
 interface QuickOrderDialogProps {
   open: boolean;

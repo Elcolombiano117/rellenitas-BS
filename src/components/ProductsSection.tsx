@@ -2,9 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Plus, Minus } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
-import rellenitaOreo from "@/assets/rellenita-oreo.png";
-import rellenitaMM from "@/assets/rellenita-mm.png";
-import rellenitaSorpresa from "@/assets/rellenita-sorpresa.png";
+import rellenitaOreo from "@/assets/rellenita-oreo.jpg";
+import rellenitaMM from "@/assets/rellenita-mm.jpg";
+import rellenitaSorpresa from "@/assets/rellenita-sorpresa.jpg";
 
 const ProductsSection = () => {
   const { items, addItem, updateQuantity } = useCart();
