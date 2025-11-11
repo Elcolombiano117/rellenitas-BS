@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { CheckCircle, Package, Truck, Heart, MapPin, Clock, Gift, ChefHat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import rellenitaOreo from "@/assets/rellenita-oreo.png";
 import { supabase } from "@/integrations/supabase/client";
 
 interface OrderTrackingProps {
@@ -348,9 +349,9 @@ const OrderTracking = ({ orderId, customerName = "amigo", dedicatoria }: OrderTr
               <div className="space-y-4">
                 <div className="bg-gradient-to-r from-beige to-white p-6 rounded-2xl">
                   <div className="text-6xl animate-bounce mb-4">🍫</div>
-                  <img 
-                    src="/src/assets/rellenita-manjar.png" 
-                    alt="Tu Rellenita lista" 
+                  <img
+                    src={rellenitaOreo}
+                    alt="Tu Rellenita lista"
                     className="w-32 h-32 object-cover rounded-full mx-auto mb-4 shadow-lg"
                   />
                 </div>

@@ -9,7 +9,6 @@ import {
 import { Plus, Minus, ShoppingCart } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import rellenitaOreo from "@/assets/rellenita-oreo.png";
-import rellenitaManjar from "@/assets/rellenita-manjar.png";
 import rellenitaMM from "@/assets/rellenita-mm.png";
 import rellenitaSorpresa from "@/assets/rellenita-sorpresa.png";
 
@@ -29,13 +28,6 @@ const QuickOrderDialog = ({ open, onOpenChange, onOpenCart }: QuickOrderDialogPr
       price: 3500,
       image: rellenitaOreo,
       description: "Galleta artesanal con relleno cremoso de Oreo"
-    },
-    {
-      id: "rellenita-manjar",
-      name: "Rellenita Manjar",
-      price: 3800,
-      image: rellenitaManjar,
-      description: "Deliciosa galleta con manjar blanco derretido"
     },
     {
       id: "rellenita-mm",
